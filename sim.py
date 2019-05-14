@@ -11,7 +11,3 @@ while not done:
     action = str(input())
     state, reward, done, _ = env.step(action)
     env.render()
-# for _ in range(5):
-#     action = np.random.choice(['u','d', 'l', 'r'],1)
-#     env.step(action)
-#     env.render()
