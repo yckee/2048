@@ -36,6 +36,8 @@ class Env_2048(gym.Env):
         self.score += reward
         if np.any(oldboard != self.board) : 
             self.board = self.__fillCell(self.board)
+        else: 
+            reward = -50
         return self.board, reward, self.__gameOver(),{}
 
  
