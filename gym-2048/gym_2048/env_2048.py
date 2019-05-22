@@ -8,12 +8,15 @@ from colorama import init
 class Env_2048(gym.Env):  
     metadata = {'render.modes': ['human']}   
     
-    def __init__(self, size=4):
+    def __init__(self, size=4, endgame_tile=2048):
         self.size = size
         board = self.__fillCell(np.zeros((self.size,self.size), dtype = np.int))
         self.board = self.__fillCell(board)
         self.score = 0
         self.clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
+        self.endgame_tile = endgame_tile
+        self.game_status = 'in process'
+         
         
 
     def step(self, action):
@@ -38,7 +41,8 @@ class Env_2048(gym.Env):
             self.board = self.__fillCell(self.board)
         else: 
             reward = -50
-        return self.board, reward, self.__gameOver(),{}
+        #done, victory = self.__gameOver
+        return self.board, reward, self.__gameOver(), self.game_status
 
  
     def reset(self):
@@ -50,6 +54,7 @@ class Env_2048(gym.Env):
     def render(self, mode='human', close=False):
         init()
         self.clear()
+
         colors ={
             0: 47,
             2: 42,
@@ -70,6 +75,9 @@ class Env_2048(gym.Env):
         for row in self.board:
             print ("|".join(("\x1b[6;30;%sm %*s"+'\x1b[0m') % (str(colors.get(n,46)),width, str(n)) for n in row))
             print(dash)
+        if self.game_status == 'Win' or self.game_status == 'Loss':
+            print(self.game_status)
+            return
 
     def __fillCell(self,board):
         """ Fill a random empty cell with 2 or 4 """
@@ -138,6 +146,11 @@ class Env_2048(gym.Env):
             return slice_to_merge, score_for_merge
 
     def __gameOver(self):
+        
+        # checks if endgame condition reached
+        if self.board.max() >= self.endgame_tile:
+            self.game_status = 'Win'
+            return True
         # checks if there are any possible moves left
         if np.all(self.board):
             # check that there are no empty cells
@@ -160,4 +173,5 @@ class Env_2048(gym.Env):
         if can_merge == True:
             return False
         else:
+            self.game_status = 'Loss'
             return True
